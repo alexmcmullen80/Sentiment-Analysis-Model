@@ -5,9 +5,10 @@ nltk.download('wordnet')
 nltk.download('stopwords')
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
 
 # Stopword removal, converting uppercase into lower case, and lemmatization
-def preprocess():
+def preprocess(test_size=0.2):
 
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -36,5 +37,4 @@ def preprocess():
     data.columns = ['response', 'score'] 
     vectorizer = TfidfVectorizer() 
     vectors = vectorizer.fit_transform(data_without_stopwords)
-    # print("n_samples: %d, n_features: %d" % vectors.shape)
-    return vectors
+    return train_test_split(vectors, score, test_size=test_size, random_state=42)
