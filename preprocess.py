@@ -1,26 +1,23 @@
 import pandas as pd
 import re
 import nltk
-# nltk.download('wordnet')
-# nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('stopwords')
 from nltk.stem import WordNetLemmatizer
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+# Stopword removal, converting uppercase into lower case, and lemmatization
 def preprocess():
-        
-    # Stopword removal, converting uppercase into lower case, and lemmatization
+
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
-
     response = []
     score = []
     files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
+
     for file in files:
         with open('sentiment_labelled_sentences/' + file, 'r') as f:
             lines = f.readlines()
-            columns = lines[0].split('\t')
-
             for line in lines[1:]:
                 temp = line.split('\t') 
                 response.append(temp[0])
@@ -37,11 +34,6 @@ def preprocess():
 
     data = pd.DataFrame(list(zip(data_without_stopwords, score))) 
     data.columns = ['response', 'score'] 
-
-    print(data.head(10))
-
-
     vectorizer = TfidfVectorizer() 
     vectors = vectorizer.fit_transform(data_without_stopwords)
-    # print("n_samples: %d, n_features: %d" % vectors.shape)
     return vectors, score
