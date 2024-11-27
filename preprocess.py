@@ -44,4 +44,4 @@ def preprocess():
     vectorizer = TfidfVectorizer() 
     vectors = vectorizer.fit_transform(data_without_stopwords)
     # print("n_samples: %d, n_features: %d" % vectors.shape)
-    return vectors
+    return vectors, score
