@@ -1,53 +1,13 @@
 import pandas as pd
-import re
-import nltk
-# nltk.download('wordnet')
-# nltk.download('stopwords')
-from nltk.stem import WordNetLemmatizer
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from preprocess import preprocess
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
-# Stopword removal, converting uppercase into lower case, and lemmatization
-stopwords = nltk.corpus.stopwords.words('english')
-lemmatizer = WordNetLemmatizer()
-
-
-
-response = []
-score = []
-files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
-for file in files:
-    with open('sentiment_labelled_sentences/' + file, 'r') as f:
-        lines = f.readlines()
-        columns = lines[0].split('\t')
-
-        for line in lines[1:]:
-            temp = line.split('\t') 
-            response.append(temp[0])
-            score.append(temp[1].strip())
-
-data_without_stopwords = []
-for i in range(0, len(response)):
-    doc = re.sub('[^a-zA-Z]', ' ', response[i])
-    doc = doc.lower()
-    doc = doc.split()
-    doc = [lemmatizer.lemmatize(word) for word in doc if not word in set(stopwords)]
-    doc = ' '.join(doc)
-    data_without_stopwords.append(doc)
-
-data = pd.DataFrame(list(zip(data_without_stopwords, score))) 
-data.columns = ['response', 'score'] 
-
-print(data.head(10))
-
-
-vectorizer = TfidfVectorizer() 
-vectors = vectorizer.fit_transform(data_without_stopwords)
-# print("n_samples: %d, n_features: %d" % vectors.shape)
+vectors, score = preprocess()
 
 X_train, X_test, y_train, y_test = train_test_split(vectors, score, test_size=0.2, random_state=42)
 

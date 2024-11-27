@@ -36,5 +36,4 @@ def preprocess():
     data.columns = ['response', 'score'] 
     vectorizer = TfidfVectorizer() 
     vectors = vectorizer.fit_transform(data_without_stopwords)
-    
-    return vectors
+    return vectors, score
