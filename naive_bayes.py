@@ -14,24 +14,26 @@ class NaiveBayesClassifier:
         self.likelihoods = {}
         self.classes = None
 
+
+
     def fit(self, X, y):
         """Fit the model to the training data."""
         self.classes = np.unique(y)
         num_samples, num_features = X.shape
 
-        # Initialize dictionaries
+        #initialize
         self.class_priors = {}
         self.likelihoods = {}
 
         for cls in self.classes:
-            # Select all samples of this class
+            #select all samples of this class
             X_cls = X[y == cls]
             total_samples_cls = X_cls.shape[0]
             
-            # Calculate P(Class)
+            #calculate P(Class)
             self.class_priors[cls] = total_samples_cls / num_samples
             
-            # Calculate likelihoods P(Feature | Class) with Laplace smoothing
+            #calculate likelihoods P(Feature | Class) with Laplace smoothing
             likelihood_cls = (np.sum(X_cls, axis=0) + 1) / (np.sum(X_cls) + num_features)
             self.likelihoods[cls] = likelihood_cls
         
@@ -46,22 +48,54 @@ class NaiveBayesClassifier:
                 log_likelihood = np.sum(np.log(self.likelihoods[cls]) * x)
                 posteriors[cls] = log_prior + log_likelihood
 
-            # Choose the class with the highest posterior probability
+            #choose class with highest posterior probability
             predictions.append(max(posteriors, key=posteriors.get))
         return np.array(predictions)
+    
 
 
+def cross_validate(X, y, num_folds):
+        kfold = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+        
+        accuracies = []
+        precisions = []
+        recalls = []
+        f1_scores = []
+
+        for train_idx, val_idx in kfold.split(X):
+            #split the data into train and validation sets
+            X_train, X_val = X[train_idx], X[val_idx]
+            y_train, y_val = y[train_idx], y[val_idx]
+
+            #initialize and train classifier
+            cv_nb = NaiveBayesClassifier()
+            cv_nb.fit(X_train, y_train)
+
+            #make predictions on the validation data
+            y_pred = cv_nb.predict(X_val)
+
+            #append model performances to list
+            accuracies.append(accuracy_score(y_val, y_pred))
+            precisions.append(precision_score(y_val, y_pred, average='weighted'))
+            recalls.append(recall_score(y_val, y_pred, average='weighted'))
+            f1_scores.append(f1_score(y_val, y_pred, average='weighted'))
+
+        #print average metrics across all folds
+        print(f"CV Average Accuracy: {np.mean(accuracies):.3f}")
+        print(f"CV Average Precision: {np.mean(precisions):.3f}")
+        print(f"CV Average Recall: {np.mean(recalls):.3f}")
+        print(f"CV Average F1 Score: {np.mean(f1_scores):.3f}")
 
 X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2)
 
-
+cross_validate(X_train, y_train, 10)
 nb_classifier = NaiveBayesClassifier()
 nb_classifier.fit(X_train, y_train)
 
-# Make predictions on the test data
+#predict
 y_pred = nb_classifier.predict(X_test)
 
-# Evaluate the model
+#evaluate performance
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, average='weighted')
 recall = recall_score(y_test, y_pred, average='weighted')
@@ -71,24 +105,3 @@ print(f"Precision: {precision:}")
 print(f"Recall: {recall:}")
 print(f"F1 score: {f1:}")
 
-# from sklearn.naive_bayes import MultinomialNB
-# MNB = MultinomialNB()
-# k_folds = KFold(n_splits = 10)
-# scores = cross_val_score(MNB, X_train, y_train, cv = k_folds)
-
-
-# MNB.fit(X_train, y_train)
-
-# y_pred = MNB.predict(X_test)
-# accuracy = accuracy_score(y_test, y_pred)
-# precision = precision_score(y_test, y_pred, average='weighted')
-# recall = recall_score(y_test, y_pred, average='weighted')
-# f1 = f1_score(y_test, y_pred, average='weighted')
-# print(f"Accuracy: {accuracy:}")
-# print(f"Precision: {precision:}")
-# print(f"Recall: {recall:}")
-# print(f"F1 score: {f1:}")
-
-
-#print("Cross Validation Scores: ", scores)
-#print("Average CV Score: ", scores.mean())
