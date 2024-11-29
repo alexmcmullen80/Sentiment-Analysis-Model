@@ -1,11 +1,12 @@
 import pandas as pd
 import re
 import nltk
-nltk.download('wordnet')
-nltk.download('stopwords')
+#nltk.download('wordnet')
+#nltk.download('stopwords')
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 # Stopword removal, converting uppercase into lower case, and lemmatization
 def preprocess(test_size=0.2):
@@ -34,7 +35,11 @@ def preprocess(test_size=0.2):
         data_without_stopwords.append(doc)
 
     data = pd.DataFrame(list(zip(data_without_stopwords, score))) 
-    data.columns = ['response', 'score'] 
+    data.columns = ['response', 'score']
+
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(score) 
     vectorizer = TfidfVectorizer() 
-    vectors = vectorizer.fit_transform(data_without_stopwords)
-    return train_test_split(vectors, score, test_size=test_size, random_state=42)
+    vectors = vectorizer.fit_transform(data_without_stopwords).toarray()
+    return train_test_split(vectors, encoded_labels, test_size=test_size, random_state=42)
+    #return train_test_split(vectors, score, test_size=test_size, random_state=42)
