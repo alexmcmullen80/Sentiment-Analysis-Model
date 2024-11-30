@@ -63,7 +63,7 @@ df['label'] = label_encoder.fit_transform(df['label'])
 X_train, X_test, y_train, y_test = train_test_split(X, df['label'], test_size=0.2, random_state=42)
 
 # Step 3: Create the embedding matrix
-embedding_dim = 300  # Using 100-dimensional embeddings from GloVe
+embedding_dim = 300  # Using 300-dimensional embeddings from GloVe
 embedding_matrix = np.zeros((max_words, embedding_dim))
 
 for word, i in tokenizer.word_index.items():
