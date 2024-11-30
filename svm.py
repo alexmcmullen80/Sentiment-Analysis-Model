@@ -1,7 +1,6 @@
 from sklearn import svm
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.preprocessing import StandardScaler
 from sklearn.utils import shuffle
 from preprocess import preprocess
 
@@ -11,11 +10,6 @@ class SVMClassifier:
         self.C = c_value
         self.epoch = epoch
         self.weights = None
-
-    def preprocess(self, X):
-        scalar = StandardScaler().fit(X)
-        X_ = scalar.transform(X)
-        return X_
 
     def compute_gradient(self, X, Y):
         X_ = np.array([X])
