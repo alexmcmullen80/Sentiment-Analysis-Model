@@ -99,7 +99,7 @@ class SimpleTextRNN:
         self.model.compile(loss=SparseCategoricalCrossentropy(), optimizer=optimizer, metrics=['accuracy'])
         return self.model
 
-    def train_model(self, X_train, y_train, epochs=525, batch_size=32):
+    def train_model(self, X_train, y_train, epochs=25, batch_size=32):
         early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
         history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=2, validation_split=0.2, callbacks=[early_stopping])
         #history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=2, validation_split=0.2)
