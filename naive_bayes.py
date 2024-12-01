@@ -39,7 +39,6 @@ class NaiveBayesClassifier:
         
 
     def predict(self, X):
-        """Predict the class labels for input samples X."""
         predictions = []
         for x in X:
             posteriors = {}
