@@ -28,6 +28,7 @@ class SVMClassifier:
         return total_distance
     
     def fit(self, X, y):
+        y = np.where(y == 0, -1, 1)
         self.weights = np.zeros(X.shape[1])
 
         for epoch in range(self.epoch):
@@ -44,7 +45,7 @@ class SVMClassifier:
 # Load data
 X_train, X_test, y_train, y_test = preprocess(test_size=0.2)
 
-y_train = np.where(y_train == 0, -1, 1)
+#y_train = np.where(y_train == 0, -1, 1)
 
 C = 1
 learning_rate = 0.0001
