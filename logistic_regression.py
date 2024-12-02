@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from preprocess import preprocess
+from cross_validate import cross_validate
 
 print("-----SKLEARN MODEL-----")
 from sklearn.linear_model import LogisticRegression
@@ -22,7 +23,7 @@ print(f"F1 score: {f1:}")
 
 print("-----FROM SCRATCH MODEL-----")
 class lr():
-    def __init__(self, learning_rate=0.1, epoch=10000):
+    def __init__(self, learning_rate=0.1, epoch=5000):
         self.lr = learning_rate
         self.epoch = epoch
         self.weights = None
@@ -43,7 +44,7 @@ class lr():
         return A
     
     # gradient descent
-    def train(self, x, y):
+    def fit(self, x, y):
         samples, features = x.shape
         self.weights = np.zeros(features)
         self.bias = 0
@@ -51,8 +52,6 @@ class lr():
         for e in range(self.epoch):
             A = self.feed_forward(x)
             loss = self.loss(y,A)
-            if e % 500 == 0:
-                print("Loss at {}: {}".format(e,loss))
             dz = A - y
             dw = (1 / samples) * np.dot(x.T, dz)
             db = (1 / samples) * np.sum(dz)
@@ -67,13 +66,4 @@ class lr():
         return np.array(y_predicted_cls)
     
 model_two = lr()
-model_two.train(X_train,y_train)
-y_pred = model_two.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-print(f"Accuracy: {accuracy:}")
-print(f"Precision: {precision:}")
-print(f"Recall: {recall:}")
-print(f"F1 score: {f1:}")
+cross_validate(X_train, X_test, y_train, y_test, model_two, num_folds=2)
