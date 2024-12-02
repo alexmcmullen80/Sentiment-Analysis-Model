@@ -1,10 +1,10 @@
 
 import numpy as np
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import KFold
 
 
-def cross_validate(X, X_test, y, y_test, num_folds, model):
+def cross_validate(X, X_test, y, y_test, model, num_folds=10):
         kfold = KFold(n_splits=num_folds, shuffle=True, random_state=42)
         
         training_errors = []
@@ -44,6 +44,14 @@ def cross_validate(X, X_test, y, y_test, num_folds, model):
         print(f"Average Training Error: {avg_train_error:.4f}")
         print(f"Average Cross-Validation Error: {avg_val_error:.4f}")
         print(f"Test Error: {test_error:.4f}")
+        accuracy = accuracy_score(y_test, y_test_pred)
+        precision = precision_score(y_test, y_test_pred, average='weighted')
+        recall = recall_score(y_test, y_test_pred, average='weighted')
+        f1 = f1_score(y_test, y_test_pred, average='weighted')
+        print(f"Accuracy: {accuracy:}")
+        print(f"Precision: {precision:}")
+        print(f"Recall: {recall:}")
+        print(f"F1 score: {f1:}")
         
 
         # Bias-Variance Analysis
