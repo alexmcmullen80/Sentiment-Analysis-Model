@@ -54,20 +54,20 @@ X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2, technique = 'tf-
 #initialize model
 nb_classifier = NaiveBayesClassifier()
 #call cross validation function
-cross_validate(X_train, X_test, y_train, y_test, 10, nb_classifier)
+cross_validate(X_train, X_test, y_train, y_test, nb_classifier)
 
-#train
-nb_classifier.fit(X_train, y_train)
-#predict
-y_pred = nb_classifier.predict(X_test)
+# #train
+# nb_classifier.fit(X_train, y_train)
+# #predict
+# y_pred = nb_classifier.predict(X_test)
 
-#evaluate performance
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-print(f"Accuracy: {accuracy:}")
-print(f"Precision: {precision:}")
-print(f"Recall: {recall:}")
-print(f"F1 score: {f1:}")
+# #evaluate performance
+# accuracy = accuracy_score(y_test, y_pred)
+# precision = precision_score(y_test, y_pred, average='weighted')
+# recall = recall_score(y_test, y_pred, average='weighted')
+# f1 = f1_score(y_test, y_pred, average='weighted')
+# print(f"Accuracy: {accuracy:}")
+# print(f"Precision: {precision:}")
+# print(f"Recall: {recall:}")
+# print(f"F1 score: {f1:}")
 

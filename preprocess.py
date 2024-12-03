@@ -58,7 +58,7 @@ def preprocess(test_size=0.2, technique = 'none', percentile = 0):
         #removing reviews with low tf-idf variance
         vectors = vectorizer.fit_transform(data_without_stopwords).toarray()
         document_variances = np.var(vectors, axis=1)  # Use toarray() if sparse
-        threshold = np.percentile(document_variances, 10)  # Remove the lowest 10%
+        threshold = np.percentile(document_variances, percentile)  # Remove the lowest 10%
         vectors = vectors[document_variances > threshold]
         encoded_labels = np.array(encoded_labels)[document_variances > threshold]
         #--------------------------------------------------------------#
@@ -66,7 +66,7 @@ def preprocess(test_size=0.2, technique = 'none', percentile = 0):
         #--------------------------------------------------------------#
         #remove reviews with low cosine similarity to others (outliers)
         all_vectors = vectorizer.fit_transform(data_without_stopwords)
-        threshold = 0.001
+        threshold = 1/100 * percentile
         similarity_matrix = cosine_similarity(all_vectors)
         mean_similarities = np.mean(similarity_matrix, axis=1)
 

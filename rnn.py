@@ -15,13 +15,11 @@ import numpy as np
 import os
 
 
+glove_file_path = 'glove/glove.6B.300d.txt' #specific gloVe file
+max_words = 10000  #number of words to keep based on frequency
+max_sequence_length = 300  #max sequence length after padding
 
-# Paths and hyperparameters
-glove_file_path = 'glove/glove.6B.300d.txt'  # Set the path to your GloVe file
-max_words = 10000  # Number of words to keep based on frequency
-max_sequence_length = 300  # Max sequence length after padding
-
-# Step 1: Load the GloVe embeddings
+#load GloVe embeddings
 def load_glove_embeddings(glove_file_path):
     embeddings_index = {}
     with open(glove_file_path, 'r', encoding="utf-8") as f:
@@ -33,10 +31,9 @@ def load_glove_embeddings(glove_file_path):
     print(f"Loaded {len(embeddings_index)} word vectors.")
     return embeddings_index
 
-# Load GloVe embeddings
 embeddings_index = load_glove_embeddings(glove_file_path)
 
-# Step 2: Prepare the text data
+#prepare the sentiment data
 files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
 data = []
 
@@ -45,25 +42,25 @@ for file in files:
         lines = f.readlines()
         for line in lines:
             temp = line.split('\t')
-            data.append(temp)  # store as tuple of (text, label)
+            data.append(temp)  #store as tuple of (text, label)
 
 df = pd.DataFrame(data, columns=["text", "label"])
 
-# Tokenizer setup
+#tokenizer setup
 tokenizer = Tokenizer(num_words=max_words)
 tokenizer.fit_on_texts(df['text'])
 X = tokenizer.texts_to_sequences(df['text'])
 X = pad_sequences(X, maxlen=max_sequence_length)
 
-# Label encode the labels
+#encode the labels
 label_encoder = LabelEncoder()
 df['label'] = label_encoder.fit_transform(df['label'])
 
-# Split data into training and testing
+#split into train and test set (same state as preprocessing)
 X_train, X_test, y_train, y_test = train_test_split(X, df['label'], test_size=0.2, random_state=42)
 
-# Step 3: Create the embedding matrix
-embedding_dim = 300  # Using 300-dimensional embeddings from GloVe
+#create the embedding matrix
+embedding_dim = 300  #using gloVe 300 dimensional embeddings
 embedding_matrix = np.zeros((max_words, embedding_dim))
 
 for word, i in tokenizer.word_index.items():
@@ -72,7 +69,7 @@ for word, i in tokenizer.word_index.items():
         if embedding_vector is not None:
             embedding_matrix[i] = embedding_vector
 
-# Step 4: Build the LSTM model with GloVe embeddings
+#build the RNN
 class SimpleTextRNN:
     def __init__(self):
         self.model = None
@@ -80,56 +77,59 @@ class SimpleTextRNN:
     def build_model(self, hidden_units, output_units, activation):
         self.model = Sequential()
         
-        # Embedding Layer with GloVe embeddings
-        self.model.add(Embedding(input_dim=max_words, output_dim=embedding_dim, 
-                                 input_length=max_sequence_length, weights=[embedding_matrix], trainable=True))
+        #embedding layer with GloVe embeddings
+        self.model.add(Embedding(input_dim=max_words, output_dim=embedding_dim, input_length=max_sequence_length, weights=[embedding_matrix], trainable=True))
         
-        # LSTM Layer
+        #GRU layer to prevent vanishing/exploding gradient
+        #use bidirectional and l2 regularization to improve performance
         self.model.add(Bidirectional(GRU(hidden_units, activation=activation[0], return_sequences=False, kernel_regularizer=l2(0.015))))
-        #self.model.add(BatchNormalization())
+    
         
-        # Dropout Layer
+        #dropout Layer
         self.model.add(Dropout(0.7))
         
-        # Output Dense Layer
+        #dense layer
         self.model.add(Dense(output_units, activation=activation[1]))
         
-        # Compile the model
+        #use Adam function as optimizer and SparseCategoricalCrossentropy as they are optimal for text processing with binary labels
         optimizer = Adam(learning_rate=0.0001)
         self.model.compile(loss=SparseCategoricalCrossentropy(), optimizer=optimizer, metrics=['accuracy'])
         return self.model
 
+    #train model with early stopping
     def train_model(self, X_train, y_train, epochs=25, batch_size=32):
-        early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+        #check if validation accuracy has not gotten better for 3 straight epochs
+        early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, restore_best_weights=True)
         history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=2, validation_split=0.2, callbacks=[early_stopping])
-        #history = self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=2, validation_split=0.2)
         return history
 
+    #evaluate model with accuracy and loss (verbose=0 displays train and validation accuracy and loss for each epoch)
     def evaluate_model(self, X_test, y_test):
         loss, accuracy = self.model.evaluate(X_test, y_test, verbose=0)
         return loss, accuracy
 
+    #predict labels
     def predict(self, X_input):
         return self.model.predict(X_input)
 
 
-# Step 5: Create and compile the LSTM model
+#initialize RNN
 lstm_model = SimpleTextRNN()
 lstm_model.build_model(hidden_units=64, output_units=2, activation=['tanh', 'softmax'])
 
-# Step 6: Train the model
+#train
 history = lstm_model.train_model(X_train, y_train)
 
-# Step 7: Evaluate the model
+#evaluate and print test accuracy
 loss, accuracy = lstm_model.evaluate_model(X_test, y_test)
 print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
-# Step 8: Plot the training and validation accuracy
-import matplotlib.pyplot as plt
-plt.plot(history.history['accuracy'], label='Train Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.legend()
-plt.title('Model Accuracy')
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
-plt.show()
+# #plot the training and validation accuracy
+# import matplotlib.pyplot as plt
+# plt.plot(history.history['accuracy'], label='Train Accuracy')
+# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+# plt.legend()
+# plt.title('Model Accuracy')
+# plt.xlabel('Epochs')
+# plt.ylabel('Accuracy')
+# plt.show()
