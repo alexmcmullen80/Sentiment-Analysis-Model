@@ -2,49 +2,55 @@
 import numpy as np
 from preprocess import preprocess
 from cross_validate import cross_validate
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
 
 
 
 class NaiveBayesClassifier:
     def __init__(self):
+        #initialize
         self.class_priors = {}
         self.likelihoods = {}
         self.classes = None
 
     def fit(self, X, y):
+        #get each class
         self.classes = np.unique(y)
         num_samples, num_features = X.shape
 
         #initialize
-        self.class_priors = {}
+        self.priors = {}
         self.likelihoods = {}
 
-        for cls in self.classes:
+        for unique_class in self.classes:
             #select all samples of this class
-            X_cls = X[y == cls]
-            total_samples_cls = X_cls.shape[0]
+            X_class = X[y == unique_class]
+            total_samples_cls = X_class.shape[0]
             
-            #calculate P(Class)
-            self.class_priors[cls] = total_samples_cls / num_samples
+            #calculate P(class) aka priors
+            self.priors[unique_class] = total_samples_cls / num_samples
             
-            #calculate likelihoods P(Feature | Class) with Laplace smoothing
-            likelihood_cls = (np.sum(X_cls, axis=0) + 1) / (np.sum(X_cls) + num_features)
-            self.likelihoods[cls] = likelihood_cls
+            #calculate P(feature|class) aka likelihoods with smoothening
+            self.likelihoods[unique_class] = (np.sum(X_class, axis=0) + 1) / (np.sum(X_class) + num_features)
         
 
-    def predict(self, X):
+    def predict(self, X_test):
+        #initialize empty predictions
         predictions = []
-        for x in X:
-            posteriors = {}
-            for cls in self.classes:
-                log_prior = np.log(self.class_priors[cls])
-                log_likelihood = np.sum(np.log(self.likelihoods[cls]) * x)
-                posteriors[cls] = log_prior + log_likelihood
 
-            #choose class with highest posterior probability
+        #loop through test set
+        for data in X_test:
+            #initialize empty posteriors
+            posteriors = {}
+
+            #compute log priors, log likelihoods and posteriors for each class
+            for unique_class in self.classes:
+                log_prior = np.log(self.priors[unique_class])
+                log_likelihood = np.sum(np.log(self.likelihoods[unique_class]) * data)
+                posteriors[unique_class] = log_prior + log_likelihood
+
+            #choose class with highest posterior probability and append it to predictions
             predictions.append(max(posteriors, key=posteriors.get))
+
         return np.array(predictions)
 
 #split into train and test
