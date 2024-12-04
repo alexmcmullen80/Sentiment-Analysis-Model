@@ -50,6 +50,10 @@ class lr():
         return np.array(y_predicted_cls)
 
 print("-----LOGISTIC REGRESSION-----")
+
+# perform preprocessing using preprocess.py
 X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2)
+# create instance of model class
 model_two = lr()
+# perform cross validation and other evaluation using cross_validate.py
 cross_validate(X_train, X_test, y_train, y_test, model_two, num_folds=2)

@@ -10,7 +10,9 @@ def cross_validate(X, X_test, y, y_test, model, num_folds=10):
         training_errors = []
         validation_errors = []
 
-        for train_idx, val_idx in kfold.split(X):
+        for i, (train_idx, val_idx) in enumerate(kfold.split(X)):
+            print("Fold {}".format(i+1))
+
             #split the data into train and validation sets
             X_train, X_val = X[train_idx], X[val_idx]
             y_train, y_val = y[train_idx], y[val_idx]
@@ -45,7 +47,8 @@ def cross_validate(X, X_test, y, y_test, model, num_folds=10):
         print(f"Average Cross-Validation Error: {avg_val_error:.4f}")
         print(f"Test Error: {test_error:.4f}")
         print('--------------------------------------------')
-        #compute and print accuracy, precision, recall, f1 score
+
+        #compute and print performance metrics
         accuracy = accuracy_score(y_test, y_test_pred)
         precision = precision_score(y_test, y_test_pred, average='weighted')
         recall = recall_score(y_test, y_test_pred, average='weighted')
@@ -56,7 +59,7 @@ def cross_validate(X, X_test, y, y_test, model, num_folds=10):
         print(f"F1 score: {f1:}")
         print('--------------------------------------------')
 
-        #do bias-Variance Analysis
+        #do bias-variance analysis
         if avg_train_error > 0.1 and abs(avg_train_error - avg_val_error) < 0.05:
             print("High Bias: The model underfits the data.")
         elif avg_train_error < 0.05 and avg_val_error > 0.15:
