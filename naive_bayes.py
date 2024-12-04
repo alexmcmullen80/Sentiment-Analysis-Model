@@ -14,7 +14,6 @@ class NaiveBayesClassifier:
         self.classes = None
 
     def fit(self, X, y):
-        """Fit the model to the training data."""
         self.classes = np.unique(y)
         num_samples, num_features = X.shape
 
@@ -56,18 +55,5 @@ nb_classifier = NaiveBayesClassifier()
 #call cross validation function
 cross_validate(X_train, X_test, y_train, y_test, nb_classifier)
 
-# #train
-# nb_classifier.fit(X_train, y_train)
-# #predict
-# y_pred = nb_classifier.predict(X_test)
 
-# #evaluate performance
-# accuracy = accuracy_score(y_test, y_pred)
-# precision = precision_score(y_test, y_pred, average='weighted')
-# recall = recall_score(y_test, y_pred, average='weighted')
-# f1 = f1_score(y_test, y_pred, average='weighted')
-# print(f"Accuracy: {accuracy:}")
-# print(f"Precision: {precision:}")
-# print(f"Recall: {recall:}")
-# print(f"F1 score: {f1:}")
 
