@@ -41,22 +41,22 @@ def cross_validate(X, X_test, y, y_test, model, num_folds=10):
         avg_train_error = np.mean(training_errors)
         avg_val_error = np.mean(validation_errors)
 
-        #print errors
-        print('--------------------------------------------')
-        print(f"Average Training Error: {avg_train_error:.4f}")
-        print(f"Average Cross-Validation Error: {avg_val_error:.4f}")
-        print(f"Test Error: {test_error:.4f}")
-        print('--------------------------------------------')
-
         #compute and print performance metrics
         accuracy = accuracy_score(y_test, y_test_pred)
         precision = precision_score(y_test, y_test_pred, average='weighted')
         recall = recall_score(y_test, y_test_pred, average='weighted')
         f1 = f1_score(y_test, y_test_pred, average='weighted')
-        print(f"Accuracy: {accuracy:}")
-        print(f"Precision: {precision:}")
-        print(f"Recall: {recall:}")
-        print(f"F1 score: {f1:}")
+        print('--------------------------------------------')
+        print(f"Accuracy: {100 * accuracy:.2f}%")
+        print(f"Precision: {100 * precision:.2f}%")
+        print(f"Recall: {100 * recall:.2f}%")
+        print(f"F1 score: {100 * f1:.2f}%")
+        
+        #print errors
+        print('--------------------------------------------')
+        print(f"Average Training Error: {100 * avg_train_error:.2f}%")
+        print(f"Average Cross-Validation Error: {100 * avg_val_error:.2f}%")
+        print(f"Test Error: {100 * test_error:.2f}%")
         print('--------------------------------------------')
 
         #do bias-variance analysis
@@ -64,10 +64,8 @@ def cross_validate(X, X_test, y, y_test, model, num_folds=10):
             print("High Bias: The model underfits the data.")
         elif avg_train_error < 0.05 and avg_val_error > 0.15:
             print("High Variance: The model overfits the training data.")
-        elif abs(avg_val_error - test_error) > 0.05:
-            print("Validation Overfitting: The model overfits the validation set.")
         else:
-            print("Good Balance: The model generalizes well.")
+            print("Good balance of bias and variance")
         print('--------------------------------------------')
 
 

@@ -32,7 +32,7 @@ class SVMClassifier:
         self.weights = np.zeros(X.shape[1])
 
         for epoch in range(self.epoch):
-            features, output = shuffle(X, y)
+            features, output = shuffle(X, y, random_state=42)
 
             for i, feature in enumerate(features):
                 gradient = self.compute_gradient(feature, output[i])
