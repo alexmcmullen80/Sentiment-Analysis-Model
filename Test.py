@@ -1,13 +1,3 @@
-import pandas as pd
-import numpy as np
-import re
-import nltk
-nltk.download('wordnet')
-nltk.download('stopwords')
-from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import pickle
 from Training import preprocess, SVMClassifier, lr, NaiveBayesClassifier
