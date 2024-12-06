@@ -100,6 +100,7 @@ def cross_validate(X, y, model, num_folds=10):
             validation_errors.append(val_error)
 
         #build new model to train on whole train set and predict on test set
+        print("full train")
         model_final = model
         model_final.fit(X, y)
 
@@ -193,6 +194,10 @@ class SVMClassifier:
 
         return total_distance
     
+    def compute_loss(self, X, Y):
+        X_ = np.array([X])
+        return np.sum(1 - (Y * np.dot(X_,self.weights)))
+
     def fit(self, X, y):
         y = np.where(y == 0, -1, 1)
         self.weights = np.zeros(X.shape[1])
@@ -204,6 +209,7 @@ class SVMClassifier:
                 gradient = self.compute_gradient(feature, output[i])
                 self.weights = self.weights - (self.learning_rate * gradient)
 
+            print(f"epoch: {epoch}, loss: {self.compute_loss(X, y)}")
 
     def predict(self, X):
         return [1 if pred > 0 else 0 for pred in np.dot(X, self.weights)]
@@ -262,7 +268,7 @@ def main():
     # SVM training and validation
     C = 1
     learning_rate = 0.0005
-    epoch = 100
+    epoch = 10
 
     # Create SVM classifier
     svm_classifier = SVMClassifier(learning_rate=learning_rate,epoch=epoch, c_value=C)
