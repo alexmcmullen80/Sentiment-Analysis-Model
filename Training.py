@@ -241,7 +241,8 @@ class lr():
         for e in range(self.epoch):
             A = self.feed_forward(x)
             loss = self.loss(y,A)
-            #print(loss)
+            if (e % 1000 == 0):
+                print(" Epoch: " + str(e) + " Loss: " + loss)
             dz = A - y
             dw = (1 / samples) * np.dot(x.T, dz)
             db = (1 / samples) * np.sum(dz)
