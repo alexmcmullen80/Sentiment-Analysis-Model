@@ -1,5 +1,5 @@
 import numpy as np
-from preprocess import preprocess
+from preprocess import preprocess, preprocess_with_sbert, load_numpy_arrays
 from cross_validate import cross_validate
 
 # NEW PER MILESTONE 3 - GRAPHS
@@ -90,7 +90,8 @@ class lr():
 print("-----LOGISTIC REGRESSION-----")
 
 # perform preprocessing using preprocess.py
-X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2)
+#preprocess_with_sbert(test_size = 0.2)
+X_train, X_test, y_train, y_test  = load_numpy_arrays()
 # create instance of model class
 model_two = lr()
 # perform cross validation and other evaluation using cross_validate.py
