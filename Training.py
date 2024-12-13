@@ -12,6 +12,54 @@ from sklearn.metrics import accuracy_score
 from sklearn.utils import shuffle
 import pickle
 
+# NEW PER MILESTONE 3 - GRAPHS
+import matplotlib.pyplot as plt
+
+# NEW PER MILESTONE 3
+# load features as npy files saved from pretrained model
+def load_numpy_arrays():
+    X_train = np.load('preprocessed_data/train_features.npy')
+    X_test = np.load('preprocessed_data/test_features.npy')
+    y_train = np.load('preprocessed_data/train_labels.npy')
+    y_test = np.load('preprocessed_data/test_labels.npy')
+    return X_train, X_test, y_train, y_test
+
+# NEW PER MILESTONE 3
+# perform preprocess using SBERT, save features as npy files
+def preprocess_with_sbert(test_size=0.2):
+    # Load SBERT model
+    from sentence_transformers import SentenceTransformer
+    sbert_model = SentenceTransformer('all-MiniLM-L6-v2')  # A lightweight SBERT model
+    
+    response = []
+    score = []
+
+    # parse sentences and scores from txt files
+    files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
+    for file in files:
+        with open('sentiment_labelled_sentences/' + file, 'r') as f:
+            lines = f.readlines()
+            for line in lines[1:]:
+                temp = line.split('\t')
+                response.append(temp[0].strip())
+                score.append(temp[1].strip())
+
+    # sentences preprocessing
+    sentence_embeddings = sbert_model.encode(response)
+
+    # label encoding
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(score)
+
+    # perform train test split given 'test_size'
+    X_train, X_test, y_train, y_test = train_test_split(sentence_embeddings, encoded_labels, test_size=test_size, random_state=42)
+
+    # save features and labels as numpy files
+    np.save('preprocessed_data/train_features.npy', X_train)
+    np.save('preprocessed_data/test_features.npy', X_test)
+    np.save('preprocessed_data/train_labels.npy', y_train)
+    np.save('preprocessed_data/test_labels.npy', y_test)
+
 def preprocess(test_size=0.2, technique = 'none', percentile = 0):
 
     stopwords = nltk.corpus.stopwords.words('english')
@@ -102,7 +150,10 @@ def cross_validate(X, y, model, num_folds=10):
         #build new model to train on whole train set and predict on test set
         print("full train")
         model_final = model
-        model_final.fit(X, y)
+        if isinstance(model_final,lr):
+            model_final.fit(X, y, True)
+        else:
+            model_final.fit(X, y)
 
         #compute average training and validation errors
         avg_train_error = np.mean(training_errors)
@@ -217,7 +268,7 @@ class SVMClassifier:
 class lr():
     
     # initialize variables
-    def __init__(self, learning_rate=0.1, epoch=10000):
+    def __init__(self, learning_rate=0.15, epoch=8000):
         self.lr = learning_rate
         self.epoch = epoch
         self.weights = None
@@ -239,21 +290,58 @@ class lr():
         return A
     
     # gradient descent
-    def fit(self, x, y):
+    def fit(self, x, y, makeGraph=False):
         samples, features = x.shape
         self.weights = np.zeros(features)
         self.bias = 0
 
+        # NEW PER MILESTONE 3 - EARLY STOPPING AND GRAPHS
+        stoppingepoch = 0
+        prevloss = 0
+        if makeGraph:
+            self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches((15,8))
+        train_plots=[]
+        epochs=[]
+
         for e in range(self.epoch):
             A = self.feed_forward(x)
             loss = self.loss(y,A)
-            if (e % 1000 == 0):
-                print(f" Epoch: {e} Loss: {loss}")
+            # if (e % 1000 == 0):
+            #     print(f" Epoch: {e} Loss: {loss}")
             dz = A - y
             dw = (1 / samples) * np.dot(x.T, dz)
             db = (1 / samples) * np.sum(dz)
             self.weights -= self.lr * dw
             self.bias -= self.lr * db
+
+            # NEW PER MILESTONE 3 - EARLY STOPPING AND GRAPHS
+            # plot every 200 epoch
+            if makeGraph and e%200 == 0:
+                train_plots.append(loss)
+                epochs.append(e)
+
+            # early stopping with a threshold of 0.4 and patience value of 100
+            if e > 100 and stoppingepoch == 0 and loss < 0.4 and prevloss - loss < 1/10000:
+                stoppingepoch = e
+                print("Stopping Epoch: {}".format(e))
+                print("Previous Loss: {}".format(prevloss))
+                print("Loss: {}".format(loss))
+                break
+            
+            if e % 100 == 0:
+                prevloss = loss
+        if makeGraph:
+            # plot points
+            self.ax.plot(epochs,train_plots, color = "red", label = "Training Loss")
+            # set the x-labels
+            self.ax.set_xlabel("Epoch")
+            # set the y-labels
+            self.ax.set_ylabel("Loss")
+            self.ax.set_ylim([0,1])
+            # set the title
+            self.ax.set_title("Loss vs Epoch for Training the Logistic Regression Model")
+            plt.show()
 
     # predict positive/negative labels
     def predict(self, x):
@@ -263,40 +351,47 @@ class lr():
         return np.array(y_predicted_cls)
 
 def main():
-    X_train, X_test, y_train, y_test = preprocess(test_size=0.2)
+    X_train, X_test, y_train, y_test = load_numpy_arrays()
 
     # SVM training and validation
+    # initialize model
     C = 1
     learning_rate = 0.0005
     epoch = 10
-
-    # Create SVM classifier
     svm_classifier = SVMClassifier(learning_rate=learning_rate,epoch=epoch, c_value=C)
-
     print("Training svm model")
+
     # train model and cross validate
     cross_validate(X_train, y_train, svm_classifier, num_folds=10)
+
+    # save as pickle
     with open('svm.pkl', 'wb') as f:
         pickle.dump(svm_classifier, f)
 
-    # Logistic regression training and validation
-
-    # create instance of model class
+    # Logistic Regression training and validation
+    # initialize model
     lr_classifier = lr()
     print("Training logistic regression model")
-    print("warning, num_folds set to 10. This may take a while... (feel free to reduce number of folds)")
+
     # perform cross validation and other evaluation using cross_validate.py
     cross_validate(X_train, y_train, lr_classifier, num_folds=10)
+
+    # save as pickle
     with open('lr.pkl', 'wb') as f:
         pickle.dump(lr_classifier, f)
 
     # Naive Bayes training and validation
+    # do not use SBERT for NB
+    X_train, X_test, y_train, y_test = preprocess(test_size=0.2)
 
-    #initialize model
+    # initialize model
     nb_classifier = NaiveBayesClassifier()
     print("Training naive bayes model")
-    #call cross validation function
+
+    # call cross validation function
     cross_validate(X_train, y_train, nb_classifier, num_folds=10)
+
+    # save as pickle
     with open('nb.pkl', 'wb') as f:
         pickle.dump(nb_classifier, f)
 
