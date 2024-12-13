@@ -2,10 +2,14 @@ import numpy as np
 from preprocess import preprocess
 from cross_validate import cross_validate
 
+# NEW PER MILESTONE 3 - GRAPHS
+import matplotlib.pyplot as plt
+
 class lr():
     
     # initialize variables
-    def __init__(self, learning_rate=0.1, epoch=10000):
+    # NEW PER MILESTONE 3 - IMPROVED MODEL PARAMETERS
+    def __init__(self, learning_rate=0.1, epoch=8000):
         self.lr = learning_rate
         self.epoch = epoch
         self.weights = None
@@ -32,15 +36,48 @@ class lr():
         self.weights = np.zeros(features)
         self.bias = 0
 
+        # NEW PER MILESTONE 3 - EARLY STOPPING AND GRAPHS
+        stoppingepoch = 0
+        prevloss = 0
+        self.fig, self.ax = plt.subplots()
+        self.fig.set_size_inches((15,8))
+        train_plots=[]
+        epochs=[]
+
         for e in range(self.epoch):
             A = self.feed_forward(x)
             loss = self.loss(y,A)
-            #print(loss)
             dz = A - y
             dw = (1 / samples) * np.dot(x.T, dz)
             db = (1 / samples) * np.sum(dz)
             self.weights -= self.lr * dw
             self.bias -= self.lr * db
+
+            # NEW PER MILESTONE 3 - EARLY STOPPING AND GRAPHS
+            # plot every 500 epoch
+            if e%500 == 0:
+                train_plots.append(loss)
+                epochs.append(e)
+
+            # early stopping with a threshold of 0.5 and patience value of 100
+            if e > 100 and stoppingepoch == 0 and loss < 0.5 and prevloss - loss < 1/10000:
+                stoppingepoch = e
+                print("Epoch: {}".format(e))
+                print("Previous Loss: {}".format(prevloss))
+                print("Loss: {}".format(loss))
+            
+            if e % 100 == 0:
+                prevloss = loss
+        # plot points
+        self.ax.plot(epochs,train_plots, color = "red", label = "Training Loss")
+        # set the x-labels
+        self.ax.set_xlabel("Epoch")
+        # set the y-labels
+        self.ax.set_ylabel("Loss")
+        self.ax.set_ylim([0,1])
+        # set the title
+        self.ax.set_title("Loss vs Epoch for Training and Validation Sets")
+        plt.show()
 
     # predict positive/negative labels
     def predict(self, x):
