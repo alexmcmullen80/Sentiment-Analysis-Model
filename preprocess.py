@@ -5,11 +5,52 @@ import nltk
 nltk.download('wordnet')
 nltk.download('stopwords')
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
-def preprocess(test_size=0.2, technique = 'none', percentile = 0):
+
+def load_numpy_arrays():
+    X_train = np.load('preprocessed_data/train_features.npy')
+    X_test = np.load('preprocessed_data/test_features.npy')
+    y_train = np.load('preprocessed_data/train_labels.npy')
+    y_test = np.load('preprocessed_data/test_labels.npy')
+    return X_train, X_test, y_train, y_test
+
+def preprocess_with_sbert(test_size=0.2):
+    # Load SBERT model
+    from sentence_transformers import SentenceTransformer
+    sbert_model = SentenceTransformer('all-MiniLM-L6-v2')  # A lightweight SBERT model
+    
+    response = []
+    score = []
+
+    # Parse sentences and scores from text files
+    files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
+    for file in files:
+        with open('sentiment_labelled_sentences/' + file, 'r') as f:
+            lines = f.readlines()
+            for line in lines[1:]:
+                temp = line.split('\t')
+                response.append(temp[0].strip())
+                score.append(temp[1].strip())
+
+    # Encode sentences into SBERT embeddings
+    sentence_embeddings = sbert_model.encode(response)
+
+    # Encode labels
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(score)
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(sentence_embeddings, encoded_labels, test_size=test_size, random_state=42)
+
+    np.save('preprocessed_data/train_features.npy', X_train)
+    np.save('preprocessed_data/test_features.npy', X_test)
+    np.save('preprocessed_data/train_labels.npy', y_train)
+    np.save('preprocessed_data/test_labels.npy', y_test)
+
+def preprocess(test_size=0.2, feature_extraction = 'tf-idf',technique = 'none', percentile = 0):
 
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -46,7 +87,12 @@ def preprocess(test_size=0.2, technique = 'none', percentile = 0):
     # vectorization
     label_encoder = LabelEncoder()
     encoded_labels = label_encoder.fit_transform(score) 
-    vectorizer = TfidfVectorizer()
+
+    #added fole milestone 3
+    if(feature_extraction == 'bow'):
+        vectorizer = CountVectorizer()
+    else:
+        vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(data_without_stopwords).toarray() 
 
     # additional preprocess techniques given 'technique'

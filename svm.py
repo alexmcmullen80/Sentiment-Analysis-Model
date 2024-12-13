@@ -1,7 +1,7 @@
 from sklearn import svm
 import numpy as np
 from sklearn.utils import shuffle
-from preprocess import preprocess
+from preprocess import preprocess, preprocess_with_sbert, load_numpy_arrays
 from cross_validate import cross_validate
 
 class SVMClassifier:
@@ -43,7 +43,8 @@ class SVMClassifier:
         return [1 if pred > 0 else 0 for pred in np.dot(X, self.weights)]
 
 # Load data
-X_train, X_test, y_train, y_test = preprocess(test_size=0.2)
+#X_train, X_test, y_train, y_test = preprocess_with_sbert(test_size=0.2)
+X_train, X_test, y_train, y_test  = load_numpy_arrays()
 
 C = 1
 learning_rate = 0.0005
