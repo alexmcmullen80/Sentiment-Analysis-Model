@@ -18,10 +18,10 @@ def load_numpy_arrays():
     return X_train, X_test, y_train, y_test
 
 def preprocess_with_sbert(test_size=0.2):
-    # Load SBERT model
+    # Load SBERT model    
     from sentence_transformers import SentenceTransformer
-    sbert_model = SentenceTransformer('all-MiniLM-L6-v2')  # A lightweight SBERT model
-    
+    # sbert_model = SentenceTransformer('all-distilroberta-v1')  # A lightweight SBERT model
+    sbert_model = SentenceTransformer('all-mpnet-base-v2')
     response = []
     score = []
 

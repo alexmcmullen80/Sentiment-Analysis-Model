@@ -27,9 +27,9 @@ def load_numpy_arrays():
 # NEW PER MILESTONE 3
 # perform preprocess using SBERT, save features as npy files
 def preprocess_with_sbert(test_size=0.2):
-    # Load SBERT model
+    #import SBERT model
     from sentence_transformers import SentenceTransformer
-    sbert_model = SentenceTransformer('all-MiniLM-L6-v2')  # A lightweight SBERT model
+    sbert_model = SentenceTransformer('all-mpnet-base-v2')
     
     response = []
     score = []
@@ -351,6 +351,7 @@ class lr():
         return np.array(y_predicted_cls)
 
 def main():
+    #preprocess_with_sbert(test_size = 0.2)
     X_train, X_test, y_train, y_test = load_numpy_arrays()
 
     # SVM training and validation
