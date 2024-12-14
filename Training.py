@@ -252,6 +252,7 @@ class SVMClassifier:
     def fit(self, X, y):
         y = np.where(y == 0, -1, 1)
         self.weights = np.zeros(X.shape[1])
+        losses = []
 
         for epoch in range(self.epoch):
             features, output = shuffle(X, y, random_state=42)
@@ -259,8 +260,14 @@ class SVMClassifier:
             for i, feature in enumerate(features):
                 gradient = self.compute_gradient(feature, output[i])
                 self.weights = self.weights - (self.learning_rate * gradient)
+            
+            loss = self.compute_loss(features, output)
+            losses.append(loss)
+            if epoch > 0 and abs(losses[epoch] - losses[epoch - 1]) < 0.001:
+                print(f"early stopping at epoch {epoch}")
+                break
 
-            print(f"epoch: {epoch}, loss: {self.compute_loss(X, y)}")
+            print(f"epoch: {epoch}, loss: {loss}")
 
     def predict(self, X):
         return [1 if pred > 0 else 0 for pred in np.dot(X, self.weights)]
@@ -358,7 +365,7 @@ def main():
     # initialize model
     C = 1
     learning_rate = 0.0005
-    epoch = 10
+    epoch = 10 # decided based on early stopping result
     svm_classifier = SVMClassifier(learning_rate=learning_rate,epoch=epoch, c_value=C)
     print("Training svm model")
 
