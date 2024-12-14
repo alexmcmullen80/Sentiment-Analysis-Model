@@ -70,7 +70,7 @@ def preprocess(test_size=0.2, technique = 'none', percentile = 0):
     # parse sentences and scores from txt files
     files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
     for file in files:
-        with open('sentiment_labelled_sentences/' + file, 'r') as f:
+        with open('sentiment_labelled_sentences/' + file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             for line in lines[1:]:
                 temp = line.split('\t') 
@@ -288,7 +288,7 @@ class SVMClassifier:
 class lr():
     
     # initialize variables
-    def __init__(self, learning_rate=0.15, epoch=8000):
+    def __init__(self, learning_rate=0.1, epoch=5000):
         self.lr = learning_rate
         self.epoch = epoch
         self.weights = None
@@ -327,8 +327,6 @@ class lr():
         for e in range(self.epoch):
             A = self.feed_forward(x)
             loss = self.loss(y,A)
-            # if (e % 1000 == 0):
-            #     print(f" Epoch: {e} Loss: {loss}")
             dz = A - y
             dw = (1 / samples) * np.dot(x.T, dz)
             db = (1 / samples) * np.sum(dz)
@@ -336,21 +334,22 @@ class lr():
             self.bias -= self.lr * db
 
             # NEW PER MILESTONE 3 - EARLY STOPPING AND GRAPHS
-            # plot every 200 epoch
-            if makeGraph and e%200 == 0:
+            # plot every 100 epoch
+            if makeGraph and e%100 == 0:
                 train_plots.append(loss)
                 epochs.append(e)
 
-            # early stopping with a threshold of 0.4 and patience value of 100
-            if e > 100 and stoppingepoch == 0 and loss < 0.4 and prevloss - loss < 1/10000:
+            # early stopping with a threshold of 1/10000
+            if e > 0 and stoppingepoch == 0 and prevloss - loss < 1/10000:
                 stoppingepoch = e
+                train_plots.append(loss)
+                epochs.append(e)
                 print("Stopping Epoch: {}".format(e))
                 print("Previous Loss: {}".format(prevloss))
                 print("Loss: {}".format(loss))
                 break
-            
-            if e % 100 == 0:
-                prevloss = loss
+            prevloss = loss
+
         if makeGraph:
             # plot points
             self.ax.plot(epochs,train_plots, color = "red", label = "Training Loss")
