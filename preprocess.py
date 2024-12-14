@@ -28,7 +28,7 @@ def preprocess_with_sbert(test_size=0.2):
     # Parse sentences and scores from text files
     files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
     for file in files:
-        with open('sentiment_labelled_sentences/' + file, 'r') as f:
+        with open('sentiment_labelled_sentences/' + file, 'r', encoding="utf-8") as f:
             lines = f.readlines()
             for line in lines[1:]:
                 temp = line.split('\t')
@@ -60,7 +60,7 @@ def preprocess(test_size=0.2, feature_extraction = 'tf-idf',technique = 'none', 
     # parse sentences and scores from txt files
     files = ['amazon_cells_labelled.txt', 'imdb_labelled.txt', 'yelp_labelled.txt']
     for file in files:
-        with open('sentiment_labelled_sentences/' + file, 'r') as f:
+        with open('sentiment_labelled_sentences/' + file, 'r', encoding="utf-8") as f:
             lines = f.readlines()
             for line in lines[1:]:
                 temp = line.split('\t') 
