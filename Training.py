@@ -150,7 +150,7 @@ def cross_validate(X, y, model, num_folds=10):
         #build new model to train on whole train set and predict on test set
         print("full train")
         model_final = model
-        if isinstance(model_final,lr):
+        if isinstance(model_final,lr) or isinstance(model_final,SVMClassifier):
             model_final.fit(X, y, True)
         else:
             model_final.fit(X, y)
@@ -249,7 +249,7 @@ class SVMClassifier:
         X_ = np.array([X])
         return np.sum(1 - (Y * np.dot(X_,self.weights)))
 
-    def fit(self, X, y):
+    def fit(self, X, y, makeGraph=False):
         y = np.where(y == 0, -1, 1)
         self.weights = np.zeros(X.shape[1])
         losses = []
@@ -268,6 +268,19 @@ class SVMClassifier:
                 break
 
             print(f"epoch: {epoch}, loss: {loss}")
+
+        if makeGraph:
+            self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches((15,8))
+            # plot points
+            self.ax.plot([i+1 for i in range(self.epoch)], losses, color = "red", label = "Training Loss")
+            # set the x-labels
+            self.ax.set_xlabel("Epoch")
+            # set the y-labels
+            self.ax.set_ylabel("Loss")
+            # set the title
+            self.ax.set_title("Loss vs Epoch for Training the SVM Model")
+            plt.show()
 
     def predict(self, X):
         return [1 if pred > 0 else 0 for pred in np.dot(X, self.weights)]
