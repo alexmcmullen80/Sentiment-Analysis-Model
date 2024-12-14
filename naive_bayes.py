@@ -55,8 +55,8 @@ class NaiveBayesClassifier:
         return np.array(predictions)
 
 #split into train and test
-#X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2, technique = 'tf-idf variance', percentile = 10)
-X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2)
+X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2, technique = 'chi-squared')
+#X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2)
 
 
 #initialize model

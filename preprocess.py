@@ -50,7 +50,7 @@ def preprocess_with_sbert(test_size=0.2):
     np.save('preprocessed_data/train_labels.npy', y_train)
     np.save('preprocessed_data/test_labels.npy', y_test)
 
-def preprocess(test_size=0.2, feature_extraction = 'tf-idf',technique = 'none', percentile = 0):
+def preprocess(test_size=0.2, feature_extraction = 'tf-idf',technique = 'none'):
 
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -111,6 +111,33 @@ def preprocess(test_size=0.2, feature_extraction = 'tf-idf',technique = 'none', 
         threshold = np.percentile(document_variances, percentile)
         vectors = vectors[document_variances > threshold]
         encoded_labels = np.array(encoded_labels)[document_variances > threshold]
+
+    elif technique == 'variance':
+        from sklearn.feature_selection import VarianceThreshold
+        # Initialize with a threshold (e.g., remove features with variance < 0.01)
+        selector = VarianceThreshold(threshold=0.0001)
+        print("Original shape:", vectors.shape)
+        vectors = selector.fit_transform(vectors)
+        print("New shape:", vectors.shape)
+
+    elif technique == 'sparsity':
+        sparsity = np.count_nonzero(vectors, axis=0) / vectors.shape[0]
+
+        # Keep features with sparsity > threshold (e.g., >1% of documents)
+        threshold = 0.0005
+        keep_indices = np.where(sparsity > threshold)[0]
+        print("Original shape:", vectors.shape)
+        vectors = vectors[:, keep_indices]
+        print("New shape:", vectors.shape)
+
+    elif technique == 'chi-squared':
+        from sklearn.feature_selection import SelectKBest, chi2
+        # Select top 1000 features based on Chi-Squared
+        selector = SelectKBest(chi2, k=2100)
+        print("Original shape:", vectors.shape)
+        vectors = selector.fit_transform(vectors, encoded_labels)
+        print("Shape after dimensionality reduction:", vectors.shape)
+
 
     # perform train test split given 'test_size'
     return train_test_split(vectors, encoded_labels, test_size=test_size, random_state=42)

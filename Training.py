@@ -60,7 +60,7 @@ def preprocess_with_sbert(test_size=0.2):
     np.save('preprocessed_data/train_labels.npy', y_train)
     np.save('preprocessed_data/test_labels.npy', y_test)
 
-def preprocess(test_size=0.2, technique = 'none', percentile = 0):
+def preprocess(test_size=0.2, technique = 'none'):
 
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -101,21 +101,15 @@ def preprocess(test_size=0.2, technique = 'none', percentile = 0):
     vectors = vectorizer.fit_transform(data_without_stopwords).toarray() 
 
     # additional preprocess techniques given 'technique'
-    # removing reviews with the lowest tf-idf sum (low information content)
-    if technique == 'information content':
-        vectors = vectorizer.fit_transform(data_without_stopwords).toarray()
-        document_sums = np.sum(vectors, axis=1)
-        threshold = np.percentile(document_sums, percentile)
-        vectors = vectors[document_sums > threshold]
-        encoded_labels = np.array(encoded_labels)[document_sums > threshold]
-    
-    #removing reviews with low tf-idf variance
-    elif technique == 'tf-idf variance':
-        vectors = vectorizer.fit_transform(data_without_stopwords).toarray()
-        document_variances = np.var(vectors, axis=1)
-        threshold = np.percentile(document_variances, percentile)
-        vectors = vectors[document_variances > threshold]
-        encoded_labels = np.array(encoded_labels)[document_variances > threshold]
+    # NEW PER MILESTONE 3
+    # selecting the best features using the Chi-Squared test
+    if technique == 'chi-squared':
+        from sklearn.feature_selection import SelectKBest, chi2
+        # Select top 1000 features based on Chi-Squared
+        selector = SelectKBest(chi2, k=2100)
+        #print("Original shape:", vectors.shape)
+        vectors = selector.fit_transform(vectors, encoded_labels)
+        #print("Shape after dimensionality reduction:", vectors.shape)
 
     # perform train test split given 'test_size'
     return train_test_split(vectors, encoded_labels, test_size=test_size, random_state=42)
@@ -402,7 +396,7 @@ def main():
 
     # Naive Bayes training and validation
     # do not use SBERT for NB
-    X_train, X_test, y_train, y_test = preprocess(test_size=0.2)
+    X_train, X_test, y_train, y_test = preprocess(test_size=0.2, technique = 'chi-squared')
 
     # initialize model
     nb_classifier = NaiveBayesClassifier()
