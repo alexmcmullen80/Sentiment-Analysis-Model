@@ -44,11 +44,11 @@ class SVMClassifier:
 
 # Load data
 #X_train, X_test, y_train, y_test = preprocess_with_sbert(test_size=0.2)
-X_train, X_test, y_train, y_test  = load_numpy_arrays()
-
+#X_train, X_test, y_train, y_test  = load_numpy_arrays()
+X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2,feature_extraction='bow')
 C = 1
 learning_rate = 0.0005
-epoch = 100
+epoch = 10
 
 # Create SVM classifier
 svm_classifier = SVMClassifier(learning_rate=learning_rate,epoch=epoch, c_value=C)
