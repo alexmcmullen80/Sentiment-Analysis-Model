@@ -251,6 +251,7 @@ class SVMClassifier:
         y = np.where(y == 0, -1, 1)
         self.weights = np.zeros(X.shape[1])
         losses = []
+        check = True
 
         for epoch in range(self.epoch):
             features, output = shuffle(X, y, random_state=42)
@@ -263,13 +264,13 @@ class SVMClassifier:
             losses.append(loss)
 
             # NEW PER MILESTONE 3
-            if epoch > 0 and abs(losses[epoch] - losses[epoch - 1]) < 0.1:
-                print(f"early stopping at epoch {epoch}")
-                # enable or disable earlystopping by uncommenting break
+            if epoch > 0 and abs(losses[epoch] - losses[epoch - 1]) < 0.1 and check:
+                print(f"Stopping Epoch (if early stopping was used) {epoch}")
+                check = False
+                #enable or disable earlystopping by uncommenting break
                 #break
 
-            print(f"epoch: {epoch}, loss: {loss}")
-
+        # NEW PER MILESTONE 3
         if makeGraph:
             self.fig, self.ax = plt.subplots()
             self.fig.set_size_inches((15,8))
@@ -345,11 +346,11 @@ class lr():
                 stoppingepoch = e
                 train_plots.append(loss)
                 epochs.append(e)
-                print("Stopping Epoch: {}".format(e))
-                print("Previous Loss: {}".format(prevloss))
-                print("Loss: {}".format(loss))
+                print("Stopping Epoch (if early stopping was used): {}".format(e))
+                # print("Previous Loss: {}".format(prevloss))
+                # print("Loss: {}".format(loss))
                 # enable or disable earlystopping by uncommenting break
-                #break
+                # break
             prevloss = loss
 
         if makeGraph:
@@ -379,7 +380,7 @@ def main():
     # initialize model
     C = 1
     learning_rate = 0.0005
-    epoch = 10 # decided based on early stopping result
+    epoch = 10
     svm_classifier = SVMClassifier(learning_rate=learning_rate,epoch=epoch, c_value=C)
     print("Training svm model")
 
