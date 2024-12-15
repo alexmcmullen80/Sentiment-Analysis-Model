@@ -60,15 +60,14 @@ class lr():
                 epochs.append(e)
 
             # early stopping with a threshold of 0.5 and patience value of 100
-            if e > 100 and stoppingepoch == 0 and prevloss - loss < 1/10000:
+            if e > 0 and stoppingepoch == 0 and prevloss - loss < 1/10000:
                 stoppingepoch = e
                 print("Epoch: {}".format(e))
                 print("Previous Loss: {}".format(prevloss))
                 print("Loss: {}".format(loss))
                 #break
             
-            if e % 100 == 0:
-                prevloss = loss
+            prevloss = loss
         # plot points
         self.ax.plot(epochs,train_plots, color = "red", label = "Training Loss")
         # set the x-labels
