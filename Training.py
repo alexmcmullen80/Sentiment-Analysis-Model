@@ -261,9 +261,12 @@ class SVMClassifier:
             
             loss = self.compute_loss(features, output)
             losses.append(loss)
-            if epoch > 0 and abs(losses[epoch] - losses[epoch - 1]) < 0.001:
+
+            # NEW PER MILESTONE 3
+            if epoch > 0 and abs(losses[epoch] - losses[epoch - 1]) < 0.1:
                 print(f"early stopping at epoch {epoch}")
-                break
+                # enable or disable earlystopping by uncommenting break
+                #break
 
             print(f"epoch: {epoch}, loss: {loss}")
 
@@ -271,7 +274,7 @@ class SVMClassifier:
             self.fig, self.ax = plt.subplots()
             self.fig.set_size_inches((15,8))
             # plot points
-            self.ax.plot([i+1 for i in range(self.epoch)], losses, color = "red", label = "Training Loss")
+            self.ax.plot([i+1 for i in range(len(losses))], losses, color = "red", label = "Training Loss")
             # set the x-labels
             self.ax.set_xlabel("Epoch")
             # set the y-labels
@@ -345,7 +348,8 @@ class lr():
                 print("Stopping Epoch: {}".format(e))
                 print("Previous Loss: {}".format(prevloss))
                 print("Loss: {}".format(loss))
-                break
+                # enable or disable earlystopping by uncommenting break
+                #break
             prevloss = loss
 
         if makeGraph:
