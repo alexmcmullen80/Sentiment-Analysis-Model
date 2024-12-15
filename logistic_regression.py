@@ -9,7 +9,7 @@ class lr():
     
     # initialize variables
     # NEW PER MILESTONE 3 - IMPROVED MODEL PARAMETERS
-    def __init__(self, learning_rate=0.15, epoch=8000):
+    def __init__(self, learning_rate=0.1, epoch=10000):
         self.lr = learning_rate
         self.epoch = epoch
         self.weights = None
@@ -91,7 +91,8 @@ print("-----LOGISTIC REGRESSION-----")
 
 # perform preprocessing using preprocess.py
 #preprocess_with_sbert(test_size = 0.2)
-X_train, X_test, y_train, y_test  = load_numpy_arrays()
+#X_train, X_test, y_train, y_test  = load_numpy_arrays()
+X_train, X_test, y_train, y_test  = preprocess(test_size = 0.2,feature_extraction='bow')
 # create instance of model class
 model_two = lr()
 # perform cross validation and other evaluation using cross_validate.py

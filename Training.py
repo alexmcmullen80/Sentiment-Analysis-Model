@@ -5,7 +5,7 @@ import nltk
 nltk.download('wordnet')
 nltk.download('stopwords')
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.metrics import accuracy_score
@@ -60,7 +60,7 @@ def preprocess_with_sbert(test_size=0.2):
     np.save('preprocessed_data/train_labels.npy', y_train)
     np.save('preprocessed_data/test_labels.npy', y_test)
 
-def preprocess(test_size=0.2, technique = 'none'):
+def preprocess(test_size=0.2, feature_extraction = 'tf-idf', technique = 'none'):
 
     stopwords = nltk.corpus.stopwords.words('english')
     lemmatizer = WordNetLemmatizer()
@@ -97,7 +97,11 @@ def preprocess(test_size=0.2, technique = 'none'):
     # vectorization
     label_encoder = LabelEncoder()
     encoded_labels = label_encoder.fit_transform(score) 
-    vectorizer = TfidfVectorizer()
+    #added for milestone 3
+    if(feature_extraction == 'bow'):
+        vectorizer = CountVectorizer()
+    else:
+        vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(data_without_stopwords).toarray() 
 
     # additional preprocess techniques given 'technique'
