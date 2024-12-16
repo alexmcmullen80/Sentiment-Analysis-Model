@@ -12,7 +12,7 @@ def test_model(model, X_test, y_test):
     incorrectly_predicted_labels = []
     for i in range(len(y_test_pred)):
         if y_test_pred[i] != y_test[i]:
-            incorrectly_predicted_labels.append(test_sentences[i])
+            incorrectly_predicted_labels.append(str(test_sentences[i]))
 
     #compute and print performance metrics
     accuracy = accuracy_score(y_test, y_test_pred)
@@ -47,5 +47,6 @@ print("Naive Bayes model test (TF-IDF, Chi Squared)")
 nb_incorrect_labels = load_and_test_model('nb.pkl', X_test, y_test)
 
 print('--------------------------------------------')
-print("sentences predicted incorrectly by all models")
-print(list(set(svm_incorrect_labels) & set(lr_incorrect_labels) & set(nb_incorrect_labels)))
+print("sentences predicted incorrectly by all models:")
+for sentence in list(set(svm_incorrect_labels) & set(lr_incorrect_labels) & set(nb_incorrect_labels)):
+    print("- " + sentence)
