@@ -51,10 +51,13 @@ def preprocess_with_sbert(test_size=0.2):
     label_encoder = LabelEncoder()
     encoded_labels = label_encoder.fit_transform(score)
 
+    _, test_labels, _, _ = train_test_split(response, encoded_labels, test_size=test_size, random_state=42)
+
     # perform train test split given 'test_size'
     X_train, X_test, y_train, y_test = train_test_split(sentence_embeddings, encoded_labels, test_size=test_size, random_state=42)
 
     # save features and labels as numpy files
+    np.save('preprocessed_data/test_labels_as_sentences.npy', test_labels)
     np.save('preprocessed_data/train_features.npy', X_train)
     np.save('preprocessed_data/test_features.npy', X_test)
     np.save('preprocessed_data/train_labels.npy', y_train)
