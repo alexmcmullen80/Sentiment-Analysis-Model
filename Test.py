@@ -9,6 +9,7 @@ def test_model(model, X_test, y_test):
     y_test_pred = model.predict(X_test)
     test_error = 1 - accuracy_score(y_test, y_test_pred)
 
+    #compute incorrectly predicted labels
     incorrectly_predicted_labels = []
     for i in range(len(y_test_pred)):
         if y_test_pred[i] != y_test[i]:
