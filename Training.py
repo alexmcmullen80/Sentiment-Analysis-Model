@@ -376,6 +376,8 @@ class lr():
         return np.array(y_predicted_cls)
 
 def main():
+    # New per Milestone 3
+    # uncomment this to recreate the numpy arrays (they have already been provided)
     #preprocess_with_sbert(test_size = 0.2)
     X_train, X_test, y_train, y_test = load_numpy_arrays()
 
