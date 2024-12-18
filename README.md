@@ -21,7 +21,7 @@ Sentiment analysis is crucial for industries that rely on understanding public o
 
 ## Dataset
 
-The project uses the **Sentiment Labeled Sentences Data Set** from the UCI Machine Learning Repository. It contains 3,000 sentences labeled as positive or negative, extracted from reviews on Amazon, IMDb, and Yelp. The entire dataset is utilized due to its manageable size, ensuring faster training and sufficient data for cross-validation.
+The project uses the [**Sentiment Labeled Sentences Data Set**](https://archive.ics.uci.edu/dataset/331/sentiment+labelled+sentences) from the UCI Machine Learning Repository. It contains 3,000 sentences labeled as positive or negative, extracted from reviews on Amazon, IMDb, and Yelp. The entire dataset is utilized due to its manageable size, ensuring faster training and sufficient data for cross-validation.
 
 ## Proposed Solution
 
