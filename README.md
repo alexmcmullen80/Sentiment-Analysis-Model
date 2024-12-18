@@ -51,8 +51,6 @@ These models are chosen for their proven performance in sentiment analysis and t
 - **Modeling**: `scikit-learn`, `pickle`, `TensorFlow`
 - **Evaluation**: `scikit-learn.metrics`
 
-## Preprocessing Improvements
-
 
 ## Model Specifications
 
